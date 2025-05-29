@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>coursesystem - courses</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/course-exchange.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+<body>
+    <div th:replace="header :: header"></div>
+    <br>
+    <br>
+    <div class="container main-container">
+        <div class="d-flex justify-content-between align-courses-center mb-4">
+            <h1 class="display-4 fw-bold gradient-text mb-0">courses Exchange</h1>
+            <a th:if="${isLoggedIn}" th:href="@{/coursesystem/courses/new}" class="btn btn-glass">
+                Add New Course
+            </a>
+        </div>
+
+        <div class="search-filter-section mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="search-box mb-3">
+                        <input type="text"
+                               id="searchInput"
+                               class="form-control"
+                               placeholder="Search (e.g., books, clothes)"
+                               th:value="${searchQuery}">
+                    </div>
+
+                    <!-- Category Pills -->
+                    <div class="category-filter">
+                        <div class="d-flex gap-2 flex-wrap" id="categoryPills">
+                            <a th:href="@{/coursesystem/courses}"
+                               class="btn btn-glass"
+                               th:classappend="${selectedCategory == null ? 'active' : ''}">
+                                All Courses
+                            </a>
+                            <a th:each="category : ${categories}"
+                               th:href="@{/coursesystem/courses(category=${category})}"
+                               class="btn btn-glass category-pill"
+                               th:classappend="${category == selectedCategory ? 'active' : ''}"
+                               th:text="${category}"
+                               th:data-category="${category}">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- courses Grid -->
+        <div class="row g-4" id="coursesGrid">
+            <div th:each="course : ${courses}" class="col-md-4 course-card-wrapper">
+                <div class="card h-100 shadow-sm course-card shadow-hover">
+                    <div class="card-img-top position-relative">
+                        <img th:if="${course.imageUrl}" th:src="${course.imageUrl}" class="img-fluid" alt="course Image">
+                        <div th:unless="${course.imageUrl}" class="placeholder-img d-flex align-courses-center justify-content-center">
+                            No Image
+                        </div>
+                        <span class="category-badge" th:text="${course.category}"></span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${course.title}"></h5>
+                        <p class="card-text text-muted" th:text="${course.description}"></p>
+                    </div>
+                    <div class="card-footer bg-white border-top-0">
+                        <div class="d-flex align-courses-center">
+                            <small class="text-muted" th:text="${course.studentEmail}"></small>
+                        </div>
+                        <a th:href="@{/coursesystem/courses/{id}(id=${course.id})}" class="btn btn-glass w-100 mt-2">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No courses Message -->
+        <div id="nocoursesMessage" class="text-center mt-5" style="display: none;">
+            <h3 class="text-muted">No courses found matching your search</h3>
+            <a th:href="@{/coursesystem/courses}" class="btn btn-glass mt-3">View All courses</a>
+        </div>
+    </div>
+    <div th:replace="footer :: footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/script.js}"></script>
+    
+    <!-- Add this JavaScript code -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const courseCards = document.querySelectorAll('.course-card-wrapper');
+            const nocoursesMessage = document.getElementById('nocoursesMessage');
+
+            function filtercourses(searchText) {
+                let hasVisiblecourses = false;
+                searchText = searchText.toLowerCase();
+
+                courseCards.forEach(card => {
+                    const category = card.querySelector('.category-badge').textContent.toLowerCase();
+                    const title = card.querySelector('.card-title').textContent.toLowerCase();
+                    const description = card.querySelector('.card-text').textContent.toLowerCase();
+
+                    if (category.includes(searchText) || 
+                        title.includes(searchText) || 
+                        description.includes(searchText) ||
+                        searchText === '') {
+                        card.style.display = '';
+                        hasVisibleCourses = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                noCoursesMessage.style.display = hasVisibleCourses ? 'none' : 'block';
+            }
+
+            searchInput.addEventListener('input', function(e) {
+                filterCourses(e.target.value);
+            });
+
+            // Добавляем debounce для оптимизации производительности
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            const debouncedFilter = debounce((searchText) => {
+                filterCourses(searchText);
+            }, 300);
+
+            searchInput.addEventListener('input', function(e) {
+                debouncedFilter(e.target.value);
+            });
+        });
+    </script>
+
+</body>
+</html>

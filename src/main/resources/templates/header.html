@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<header th:fragment="header">
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/coursesystem}">
+                CourseSystem
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-course">
+                        <a class="nav-link" th:href="@{/coursesystem/courses}">
+                            Courses
+                        </a>
+                    </li>
+                    <li class="nav-course">
+                        <a class="nav-link" th:href="@{/coursesystem/recycling-map}">
+                            About Us
+                        </a>
+                    </li>
+                    <li class="nav-course">
+                        <a class="nav-link" th:href="@{/coursesystem/partners}">
+                            Contact Us
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-courses-center">
+                    <a th:href="${isLoggedIn} ? @{/coursesystem/profile} : @{/coursesystem/login}"
+                       class="btn btn-glass">
+                        <span th:text="${isLoggedIn} ? 'Profile' : 'Login'"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+</body>
+</html>
